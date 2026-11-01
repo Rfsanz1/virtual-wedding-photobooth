@@ -79,9 +79,19 @@ model Event {
   videos        Video[]
   voiceNotes    VoiceNote[]
   messages      Message[]
+  invitation    InvitationContent?
 
   @@index([active])
   @@index([date])
+}
+
+model InvitationContent {
+  id               String   @id @default(cuid())
+  eventId          String   @unique
+  data             Json
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  event            Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model GuestSession {

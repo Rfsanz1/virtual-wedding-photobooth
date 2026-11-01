@@ -7,6 +7,7 @@ import {
   resolveTemplateText,
   type TemplateConfig,
 } from "@/lib/image/template-config";
+import { applyPhotoFilter, normalizePhotoFilter, type PhotoFilter } from "@/lib/image/photo-filter";
 export type { PhotoArea, TemplateText } from "@/lib/image/template-config";
 
 export type ProcessPhotoInput = {
@@ -14,6 +15,7 @@ export type ProcessPhotoInput = {
   template: TemplateConfig;
   variables: { eventName: string; eventDate: string; location: string };
   photoIndex?: number;
+  filter?: PhotoFilter | string | null;
 };
 
 function escapeXml(value: string) {
@@ -44,14 +46,18 @@ async function assetBuffer(reference: string | null | undefined) {
   return null;
 }
 
-export async function processPhoto({ original, template, variables, photoIndex }: ProcessPhotoInput) {
+export async function processPhoto({ original, template, variables, photoIndex, filter }: ProcessPhotoInput) {
   const config = normalizeTemplate({ ...DEFAULT_TEMPLATE, ...template });
   const { width, height, photoSlots } = config;
+  const photoFilter = normalizePhotoFilter(typeof filter === "string" ? filter : null);
   const rotated = sharp(original).rotate();
   const composites: OverlayOptions[] = [];
   const area = photoSlots[Math.min(Math.max(photoIndex ?? 0, 0), photoSlots.length - 1)];
   if (area) {
-    const image = await rotated.clone().resize(area.width, area.height, { fit: "cover", position: "centre" }).png().toBuffer();
+    const image = await applyPhotoFilter(rotated.clone(), photoFilter)
+      .resize(area.width, area.height, { fit: "cover", position: "centre" })
+      .png()
+      .toBuffer();
     composites.push({ input: image, left: area.x, top: area.y });
   }
   const background = await assetBuffer(config.background);
@@ -91,5 +97,5 @@ export async function processPhoto({ original, template, variables, photoIndex }
     });
   }
   const base = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#f5ede7"/></svg>`);
-  return sharp(base).composite(composites).jpeg({ quality: 90, mozjpeg: true }).toBuffer();
+  return sharp(base).composite(composites).jpeg({ quality: 95, chromaSubsampling: "4:4:4" }).toBuffer();
 }

@@ -21,6 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ eve
   const file = form.get("file");
   const sessionId = form.get("sessionId");
   const templateId = form.get("templateId");
+  const filter = form.get("filter");
   if (!(file instanceof File) || typeof sessionId !== "string") return NextResponse.json({ error: "File dan session wajib diisi." }, { status: 400 });
   if (file.size > MAX_FILE_SIZE) return NextResponse.json({ error: "Ukuran foto maksimal 10 MB." }, { status: 413 });
   if (!allowedTypes.has(file.type)) return NextResponse.json({ error: "Format foto harus JPEG, PNG, atau WebP." }, { status: 415 });
@@ -48,6 +49,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ eve
       original,
       template:       template ? configFromTemplateRecord(template) : {},
       photoIndex: photoCount,
+      filter: typeof filter === "string" ? filter : null,
       variables: { eventName: event.name, eventDate: event.date.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }), location: event.location ?? "" },
     });
     finalKey = await storage.uploadFile({ data: final, contentType: "image/jpeg", extension: "jpg" });

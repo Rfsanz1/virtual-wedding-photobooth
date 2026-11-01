@@ -39,12 +39,19 @@ function hasType(memory: GalleryMemory, type: string) {
   return true;
 }
 
+function SafeImg({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [bad, setBad] = useState(false);
+  if (bad) return <div className="grid aspect-square w-full place-items-center bg-[#f3e7da] text-center text-xs text-[#b99b77]"><span>Foto tidak tersedia</span></div>;
+  return <img src={src} alt={alt} loading="lazy" decoding="async" onError={() => setBad(true)} className={className} />;
+}
+
 export default function EventGallery({ eventName, slug, initialFilter, memories }: Props) {
   const [filter, setFilter] = useState(filters.some(([value]) => value === initialFilter) ? initialFilter : "all");
   const [selected, setSelected] = useState<GalleryMemory | null>(null);
   const visible = filter === "all" ? memories : memories.filter((memory) => hasType(memory, filter));
   const selectedIndex = selected ? visible.findIndex((memory) => memory.id === selected.id) : -1;
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [shown, setShown] = useState(12);
 
   function chooseFilter(value: string) {
     setFilter(value);
@@ -60,23 +67,23 @@ export default function EventGallery({ eventName, slug, initialFilter, memories 
   }
   const activePhoto = selected && selected.photos.length ? selected.photos[photoIndex] : null;
 
-  return <main className="relative min-h-screen overflow-hidden bg-[#f8f2ed] px-5 py-7 text-[#2b2927] sm:px-8 sm:py-10">
+  return <main className="wedding-page relative min-h-screen overflow-x-clip bg-[#f8f2ed] px-5 py-7 text-[#2b2927] sm:px-8 sm:py-10">
     <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true"><span className="absolute right-8 top-12 text-5xl text-[#c99a62]/20">❀</span><span className="absolute left-8 top-28 text-xl text-[#c99a62]/25">✦</span><span className="absolute bottom-20 left-5 text-5xl text-[#c99a62]/15">❀</span><div className="absolute right-10 bottom-24 h-24 w-24 rounded-full border border-[#c99a62]/15" /></div>
     <div className="relative z-10 mx-auto max-w-5xl">
       <a href={`/event/${slug}`} className="text-sm font-semibold text-[#957c6c]">← Kembali ke event</a>
-      <header className="mt-8"><p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#957c6c]">Galeri kenangan</p><h1 className="mt-3 font-serif text-[clamp(2.8rem,10vw,5rem)] leading-none">{eventName.split(" & ").map((part, index) => <span key={part}>{index > 0 && <span className="text-[#c99a62]"> & </span>}{part}</span>)}</h1><p className="mt-4 text-sm text-[#8f837b]">Momen yang dibagikan oleh para tamu. 🤎</p></header>
+      <header className="mt-8"><p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#957c6c]">Wedding Gallery</p><h1 className="mt-3 font-serif text-[clamp(2.8rem,10vw,5rem)] leading-none">{eventName.split(" & ").map((part, index) => <span key={part}>{index > 0 && <span className="text-[#c99a62]"> & </span>}{part}</span>)}</h1><p className="mt-4 text-sm text-[#8f837b]">Kenangan yang dibagikan oleh para tamu undangan.</p></header>
       <nav className="mt-8 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{filters.map(([value, label]) => <button type="button" key={value} onClick={() => chooseFilter(value)} className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition ${filter === value ? "border-[#2b2927] bg-[#2b2927] text-white" : "border-[#dec9b2] bg-[#fffaf6] text-[#6f5748]"}`}>{label}</button>)}</nav>
-      <div className="mt-9 flex items-center justify-between gap-3"><div className="flex items-center gap-2"><Heart size={18} className="text-[#c99a62]" fill="currentColor" /><div><h2 className="font-serif text-2xl">Semua Kenangan</h2><p className="text-xs text-[#8f837b]">{visible.length} kenangan</p></div></div><span className="rounded-full border border-[#dec9b2] bg-[#fffaf6] px-3 py-2 text-xs font-semibold text-[#8f837b]">Terbaru</span></div>
-      {visible.length ? <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5">{visible.map((memory) => {
+      <div className="mt-9 flex items-center justify-between gap-3"><div className="flex items-center gap-2"><Heart size={18} className="text-[#c99a62]" fill="currentColor" /><div><h2 className="font-serif text-2xl">Galeri Kenangan</h2><p className="text-xs text-[#8f837b]">{visible.length} kenangan</p></div></div><span className="rounded-full border border-[#dec9b2] bg-[#fffaf6] px-3 py-2 text-xs font-semibold text-[#8f837b]">Terbaru</span></div>
+      {visible.length ? <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5">{visible.slice(0, shown).map((memory) => {
         const photo = memory.photos[0];
         const video = memory.videos[0];
-        return <button type="button" key={memory.id} onClick={() => openMemory(memory)} className="overflow-hidden rounded-[1.15rem] border border-[#eadfd8] bg-[#fffdf9] text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-          {photo ? <img src={photo.url} alt={`Foto dari ${eventName}`} className="aspect-square w-full object-cover" /> : video ? <div className="relative aspect-square bg-[#332b27]"><video preload="metadata" muted playsInline src={video.url} className="h-full w-full object-cover opacity-80" /><span className="absolute inset-0 m-auto grid h-11 w-11 place-items-center rounded-full bg-white/90 text-[#5c4737]"><Play size={18} fill="currentColor" /></span><span className="absolute bottom-2 right-2 rounded-full bg-black/65 px-2 py-1 text-[10px] font-semibold text-white">{duration(video.durationMs)}</span></div> : <div className="flex aspect-square flex-col items-center justify-center bg-[#f3e7da] p-4 text-[#8c6e52]"><span className="grid h-12 w-12 place-items-center rounded-full bg-[#fffaf6]">{memory.voiceNotes.length ? <Mic size={22} /> : <span className="text-3xl">“</span>}</span><p className="mt-3 line-clamp-4 text-center font-serif text-base">{memory.messages[0]?.content ?? "Voice Note"}</p></div>}
+        return <button type="button" key={memory.id} onClick={() => openMemory(memory)} className="wedding-rise overflow-hidden rounded-[1.15rem] border border-[#eadfd8] bg-[#fffdf9] text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+          {photo ? <SafeImg src={photo.url} alt={`Foto dari ${eventName}`} className="aspect-square w-full object-cover" /> : video ? <div className="relative aspect-square bg-[#332b27]"><video preload="metadata" muted playsInline src={video.url} className="h-full w-full object-cover opacity-80" /><span className="absolute inset-0 m-auto grid h-11 w-11 place-items-center rounded-full bg-white/90 text-[#5c4737]"><Play size={18} fill="currentColor" /></span><span className="absolute bottom-2 right-2 rounded-full bg-black/65 px-2 py-1 text-[10px] font-semibold text-white">{duration(video.durationMs)}</span></div> : <div className="flex aspect-square flex-col items-center justify-center bg-[#f3e7da] p-4 text-[#8c6e52]"><span className="grid h-12 w-12 place-items-center rounded-full bg-[#fffaf6]">{memory.voiceNotes.length ? <Mic size={22} /> : <span className="text-3xl">“</span>}</span><p className="mt-3 line-clamp-4 text-center font-serif text-base">{memory.messages[0]?.content ?? "Voice Note"}</p></div>}
           <div className="border-t border-[#eee2d8] p-3"><p className="truncate text-xs font-semibold text-[#5c4737]">{memory.guestName || memory.messages[0]?.name || "Tamu undangan"} <span className="float-right text-[#c99a62]">♡</span></p><p className="mt-1 truncate text-[10px] text-[#9a8d84]">{dateLabel(memory.createdAt)}</p><div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-semibold text-[#9a765c]">{memory.photos.length > 0 && <span>{memory.photos.length} Foto</span>}{memory.voiceNotes.length > 0 && <span>🎤 Voice</span>}{memory.messages.length > 0 && <span>💬 Pesan</span>}</div></div>
         </button>;
       })}</div> : <p className="mt-8 rounded-2xl border border-[#eadfd8] bg-white/80 p-10 text-center text-sm text-[#8f837b]">Belum ada kenangan yang dibagikan.</p>}
-      <button type="button" className="mx-auto mt-8 block rounded-full border border-[#c99a62] bg-[#fffaf6] px-6 py-3 text-sm font-semibold text-[#6f5748]">Muat Lebih Banyak</button>
-      <p className="mx-auto mt-5 max-w-md rounded-full border border-[#ead7bd] bg-[#fff8ef] px-4 py-3 text-center text-xs text-[#9b7658]">♡ Terima kasih telah berbagi momen indah bersama kami.</p>
+      {shown < visible.length && <button type="button" onClick={() => setShown((n) => n + 12)} className="mx-auto mt-8 block rounded-full border border-[#c99a62] bg-[#fffaf6] px-6 py-3 text-sm font-semibold text-[#6f5748] active:scale-95">Muat Lebih Banyak</button>}
+      <p className="mx-auto mt-5 max-w-md rounded-full border border-[#ead7bd] bg-[#fff8ef] px-4 py-3 text-center text-xs text-[#9b7658]">Terima kasih telah berbagi momen istimewa bersama kami.</p>
     </div>
     {selected && <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#211d1a]/95 p-5" onClick={() => setSelected(null)}>
       <div className="relative w-full max-w-3xl py-8" onClick={(event) => event.stopPropagation()}><button type="button" onClick={() => setSelected(null)} aria-label="Tutup" className="absolute right-0 top-0 grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white"><X size={20} /></button>

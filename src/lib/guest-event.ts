@@ -1,13 +1,28 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import type { GuestExperienceProps } from "@/components/photobooth/guest-experience";
 import type { PreviewTemplate } from "@/components/photobooth/photo-preview";
 import { configFromTemplateRecord } from "@/lib/image/template-config";
+import { mergeInvitationContent } from "@/lib/invitation-content";
+
+async function withDatabaseRetry<T>(query: () => Promise<T>): Promise<T> {
+  try {
+    return await query();
+  } catch (error) {
+    const isConnectionError =
+      error instanceof Prisma.PrismaClientInitializationError ||
+      (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P1001");
+    if (!isConnectionError) throw error;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return query();
+  }
+}
 
 async function getFrames(): Promise<PreviewTemplate[]> {
-  const rawFrames = await prisma.template.findMany({
+  const rawFrames = await withDatabaseRetry(() => prisma.template.findMany({
     select: { id: true, name: true, width: true, height: true, background: true, overlay: true, logo: true, textConfig: true },
     orderBy: { createdAt: "asc" },
-  });
+  }));
 
   return rawFrames.map((frame): PreviewTemplate => {
     const config = configFromTemplateRecord(frame);
@@ -19,9 +34,9 @@ async function getFrames(): Promise<PreviewTemplate[]> {
 }
 
 export async function getGuestEvent(slug?: string): Promise<GuestExperienceProps | null> {
-  const event = slug
-    ? await prisma.event.findUnique({ where: { slug } })
-    : await prisma.event.findFirst({ where: { active: true }, orderBy: { createdAt: "asc" } });
+  const event = await withDatabaseRetry(() => slug
+    ? prisma.event.findUnique({ where: { slug }, include: { invitation: true } })
+    : prisma.event.findFirst({ where: { active: true }, orderBy: { createdAt: "asc" }, include: { invitation: true } }));
 
   if (!event || !event.active) return null;
 
@@ -43,5 +58,6 @@ export async function getGuestEvent(slug?: string): Promise<GuestExperienceProps
     videoDuration: event.videoDuration,
     allowVoiceNote: event.allowVoiceNote,
     voiceNoteDuration: event.voiceNoteDuration,
+    invitation: mergeInvitationContent(event.invitation?.data),
   };
 }

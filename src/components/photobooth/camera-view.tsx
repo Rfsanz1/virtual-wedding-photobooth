@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { getPhotoFilterCss, type PhotoFilter } from "@/lib/image/photo-filter";
 
 export type FacingMode = "user" | "environment";
 
@@ -29,12 +30,15 @@ export type CameraDiagnostics = {
 
 export type CameraViewHandle = {
   captureFrame: () => Promise<Blob>;
+  setTorch: (on: boolean) => Promise<boolean>;
   getDimensions: () => { width: number; height: number; ratio: number } | null;
 };
 
 type CameraViewProps = {
   active: boolean;
   facingMode: FacingMode;
+  filter?: PhotoFilter;
+  mirror?: boolean;
   onReady: (dimensions: { width: number; height: number; ratio: number }) => void;
   onError: (code: CameraErrorCode) => void;
   onDiagnostics: (diagnostics: CameraDiagnostics) => void;
@@ -65,8 +69,12 @@ function getErrorCode(error: unknown): CameraErrorCode {
 }
 
 const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(
-  function CameraView({ active, facingMode, onReady, onError, onDiagnostics }, ref) {
+  function CameraView({ active, facingMode, filter = "natural", mirror = true, onReady, onError, onDiagnostics }, ref) {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const mirrorRef = useRef(mirror);
+    const facingRef = useRef(facingMode);
+    mirrorRef.current = mirror;
+    facingRef.current = facingMode;
     const streamRef = useRef<MediaStream | null>(null);
     const [videoReady, setVideoReady] = useState(false);
 
@@ -82,13 +90,39 @@ const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(
         canvas.height = video.videoHeight;
         const context = canvas.getContext("2d");
         if (!context) throw new Error("Canvas tidak tersedia.");
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
+        if (facingRef.current === "user" && mirrorRef.current) {
+          context.translate(canvas.width, 0);
+          context.scale(-1, 1);
+        }
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+        const probe = document.createElement("canvas");
+        probe.width = 16;
+        probe.height = 16;
+        const probeCtx = probe.getContext("2d");
+        probeCtx?.drawImage(canvas, 0, 0, 16, 16);
+        const px = probeCtx?.getImageData(0, 0, 16, 16).data;
+        if (px) {
+          let sum = 0;
+          for (let i = 0; i < px.length; i += 4) sum += px[i] + px[i + 1] + px[i + 2];
+          if (sum / ((px.length / 4) * 3) < 3) throw new Error("Frame kamera kosong.");
+        }
         const blob = await new Promise<Blob | null>((resolve) =>
-          canvas.toBlob(resolve, "image/jpeg", 0.85),
+          canvas.toBlob(resolve, "image/jpeg", 0.95),
         );
         if (!blob) throw new Error("Foto gagal dibuat.");
         return blob;
+      },
+      async setTorch(on: boolean) {
+        const track = streamRef.current?.getVideoTracks()[0];
+        try {
+          await track?.applyConstraints({ advanced: [{ torch: on }] } as unknown as MediaTrackConstraints);
+          return Boolean(track);
+        } catch {
+          return false;
+        }
       },
       getDimensions() {
         const video = videoRef.current;
@@ -144,7 +178,10 @@ const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(
       navigator.mediaDevices.getUserMedia({
           audio: false,
           video: {
-              facingMode,
+              facingMode: { ideal: facingMode },
+              width: { ideal: 2560 },
+              height: { ideal: 1440 },
+              frameRate: { ideal: 30 },
             },
         })
         .then((stream) => {
@@ -197,14 +234,17 @@ const CameraView = forwardRef<CameraViewHandle, CameraViewProps>(
       };
     }, [active, facingMode, onDiagnostics, onError, onReady]);
 
+    const previewFilter = getPhotoFilterCss(filter);
+
     return (
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
+        style={{ filter: previewFilter }}
         className={`absolute left-1/2 top-1/2 max-h-full max-w-full -translate-x-1/2 -translate-y-1/2 object-contain ${
-          facingMode === "user" ? "-scale-x-100" : ""
+          facingMode === "user" && mirror ? "-scale-x-100" : ""
         } ${videoReady ? "opacity-100" : "opacity-0"}`}
       />
     );

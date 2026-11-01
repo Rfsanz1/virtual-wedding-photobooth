@@ -1,6 +1,7 @@
 import { hash } from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { createEventWithGeneratedCode, normalizeEventCode } from "../src/lib/event-code";
+import { invitationDefaults } from "../src/lib/invitation-content";
 
 const prisma = new PrismaClient();
 
@@ -132,6 +133,12 @@ async function main() {
   } else {
     await createEventWithGeneratedCode(eventData);
   }
+  const seededEvent = await prisma.event.findUniqueOrThrow({ where: { slug: eventData.slug } });
+  await prisma.invitationContent.upsert({
+    where: { eventId: seededEvent.id },
+    update: { data: { ...invitationDefaults, location: eventData.location, coupleName: eventData.name } },
+    create: { eventId: seededEvent.id, data: { ...invitationDefaults, location: eventData.location, coupleName: eventData.name } },
+  });
   console.log(`Admin siap: ${email}`);
 }
 

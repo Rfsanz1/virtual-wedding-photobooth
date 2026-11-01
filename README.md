@@ -76,3 +76,9 @@ ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='password-kuat' npm run db:seed
 - Dashboard statistik dari database
 - CRUD create/list event dengan validasi Zod
 - Halaman event guest original yang siap menjadi entry point photobooth
+
+## Unified wedding experience
+
+The Next.js application is the main application for the invitation and photobooth experience. The guest pages, admin dashboard, uploads, gallery, messages, video, and voice notes use the same Next.js route handlers and Prisma database; no second invitation API is required.
+
+The visual system follows the invitation design: ivory backgrounds, warm brown typography, champagne accents, restrained floral decoration, soft panels, and larger touch-friendly controls. The main entry points are `/`, `/event/[slug]`, `/event/[slug]/gallery`, and `/admin`.

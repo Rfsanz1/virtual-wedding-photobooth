@@ -1,0 +1,600 @@
+@import url("common.css");
+@import url("animation.css");
+
+html {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.with-scrollbar {
+    scrollbar-width: auto !important;
+    -ms-overflow-style: auto !important;
+}
+
+.font-esthetic {
+    font-family: 'Sacramento', cursive !important;
+}
+
+.font-arabic {
+    font-family: 'Noto Naskh Arabic', serif !important;
+}
+
+.img-center-crop {
+    width: 13rem;
+    height: 13rem;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+.invitation-slide {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    color: #5e4737;
+    background-color: #f8eee3 !important;
+    background-image: none;
+}
+
+.invitation-slide::before {
+    position: absolute;
+    inset: -8%;
+    z-index: 0;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    content: "";
+    opacity: 0.72;
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 52%, rgba(0, 0, 0, 0.85) 72%, transparent 100%);
+    mask-image: radial-gradient(ellipse at center, #000 52%, rgba(0, 0, 0, 0.85) 72%, transparent 100%);
+    pointer-events: none;
+}
+
+.invitation-slide::after {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+        linear-gradient(
+            180deg,
+            #f8eee3 0%,
+            rgba(248, 238, 227, 0.7) 8%,
+            rgba(248, 238, 227, 0.24) 20%,
+            rgba(248, 238, 227, 0.24) 78%,
+            rgba(248, 238, 227, 0.76) 92%,
+            #f8eee3 100%
+        ),
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.22), transparent 48%);
+    content: "";
+    pointer-events: none;
+}
+
+.slide-arch::before,
+.slide-gallery::before,
+.slide-footer::before {
+    background-image: url("/assets/images/1001824561.png");
+}
+
+.slide-quote::before,
+.slide-date::before,
+.slide-comment::before {
+    background-image: url("/assets/images/1001824499.png");
+}
+
+.slide-story::before,
+.slide-gift::before {
+    background-image: url("/assets/images/1001824608.png");
+}
+
+.invitation-slide > * {
+    position: relative;
+    z-index: 1;
+}
+
+.invitation-slide.bg-light-dark,
+.invitation-slide.bg-white-black {
+    color: #5e4737;
+    background-color: #f8eee3 !important;
+}
+
+.invitation-slide .bg-theme-auto {
+    color: #5e4737;
+    background-color: rgba(255, 250, 242, 0.82) !important;
+    border: 1px solid rgba(174, 132, 91, 0.2) !important;
+    box-shadow: 0 1rem 2rem rgba(94, 71, 55, 0.08) !important;
+}
+
+.invitation-slide .text-theme-auto {
+    color: #5e4737 !important;
+}
+
+.invitation-slide .btn-outline-auto {
+    --bs-btn-color: #5e4737;
+    --bs-btn-border-color: rgba(94, 71, 55, 0.72);
+    --bs-btn-hover-color: #fffaf2;
+    --bs-btn-hover-bg: #765642;
+    --bs-btn-hover-border-color: #765642;
+    --bs-btn-active-color: #fffaf2;
+    --bs-btn-active-bg: #5e4737;
+    --bs-btn-active-border-color: #5e4737;
+    color: #5e4737 !important;
+    border-color: rgba(94, 71, 55, 0.72) !important;
+}
+
+.invitation-slide .btn-outline-auto:hover,
+.invitation-slide .btn-outline-auto:focus-visible {
+    color: #fffaf2 !important;
+    background-color: #765642 !important;
+    border-color: #765642 !important;
+}
+
+.invitation-hero > .bg-light-dark {
+    height: 100%;
+    overflow: hidden;
+}
+
+html[data-bs-theme="dark"] .btn-transparent {
+    background-color: rgba(var(--bs-dark-rgb), 0.5) !important;
+    backdrop-filter: blur(0.5rem);
+}
+
+html[data-bs-theme="light"] .btn-transparent {
+    background-color: rgba(var(--bs-light-rgb), 0.5) !important;
+    backdrop-filter: blur(0.5rem);
+}
+
+.loading-page {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1056;
+}
+
+html[data-bs-theme="light"] .color-theme-svg {
+    color: rgb(255, 255, 255);
+    background-color: var(--bs-light);
+}
+
+html[data-bs-theme="dark"] .color-theme-svg {
+    color: rgb(0, 0, 0);
+    background-color: var(--bs-dark);
+}
+
+html[data-bs-theme="light"] .bg-light-dark {
+    background-color: rgb(var(--bs-light-rgb));
+}
+
+html[data-bs-theme="dark"] .bg-light-dark {
+    background-color: rgb(var(--bs-dark-rgb));
+}
+
+html[data-bs-theme="light"] .bg-white-black {
+    background-color: rgb(var(--bs-white-rgb));
+}
+
+html[data-bs-theme="dark"] .bg-white-black {
+    background-color: rgb(var(--bs-black-rgb));
+}
+
+.bg-cover-home {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mask-image: linear-gradient(0.5turn, transparent, black 40%, black 60%, transparent);
+}
+
+.bride-section {
+    min-height: 100%;
+    padding-top: 1rem;
+    color: #5e4737;
+}
+
+.bride-section .img-center-crop {
+    border-color: rgba(94, 71, 55, 0.55) !important;
+    box-shadow: 0 0.5rem 1.25rem rgba(80, 55, 39, 0.18) !important;
+    outline: 0.35rem solid rgba(255, 250, 242, 0.72);
+    outline-offset: 0.25rem;
+}
+
+.bride-section .font-arabic,
+.bride-section .font-esthetic,
+.bride-section p {
+    color: #5e4737;
+}
+
+.slide-quote .bg-theme-auto,
+.slide-date .border,
+.slide-gallery .bg-theme-auto,
+.slide-gift .bg-theme-auto {
+    backdrop-filter: blur(0.35rem);
+}
+
+.slide-date .border {
+    border-color: rgba(174, 132, 91, 0.32) !important;
+    background: rgba(255, 250, 242, 0.66);
+}
+
+.slide-gallery .carousel,
+.slide-story > .container > .bg-theme-auto,
+.slide-comment > .container {
+    border: 1px solid rgba(174, 132, 91, 0.18);
+    border-radius: 1.5rem;
+    background: rgba(255, 250, 242, 0.34);
+    box-shadow: 0 1.25rem 2.5rem rgba(94, 71, 55, 0.08);
+}
+
+.width-loading {
+    width: 25%;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+@media screen and (max-width: 992px) {
+    .width-loading {
+        width: 50%;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .width-loading {
+        width: 75%;
+    }
+}
+
+svg {
+    display: block;
+    line-height: 0;
+    shape-rendering: geometricPrecision;
+    backface-visibility: hidden;
+}
+
+.svg-wrapper {
+    overflow: hidden !important;
+    transform: translateZ(0) !important;
+}
+
+.no-gap-bottom {
+    margin-bottom: -0.75rem !important;
+}
+
+.wedding-cover {
+    z-index: 1055;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+    min-height: 100svh;
+    color: #5e4737;
+    background-color: #eee4d7;
+    background-image: linear-gradient(180deg, rgba(255, 250, 242, 0.12), rgba(224, 205, 183, 0.14)), url("/assets/images/1001824490.png");
+    background-position: center 40%;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+@supports (height: 100dvh) {
+    .wedding-cover {
+        height: 100dvh;
+    }
+}
+
+.wedding-cover::after {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, rgba(255, 250, 242, 0.08), rgba(255, 250, 242, 0.22));
+    content: "";
+}
+
+.wedding-cover-content {
+    display: flex;
+    position: relative;
+    z-index: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: min(88vw, 25rem);
+    height: 100%;
+    min-height: 0;
+    padding: 5vh 1.5rem 5vh;
+    text-align: center;
+}
+
+.wedding-cover-kicker {
+    margin: 0 0 clamp(1.25rem, 3vh, 1.75rem);
+    font-family: "Sacramento", cursive;
+    font-size: clamp(1.4rem, 6vw, 1.95rem);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    transform: translateY(-18px);
+}
+
+.wedding-cover-name-frame {
+    display: grid;
+    position: relative;
+    place-items: center;
+    width: min(70vw, 18.75rem);
+    aspect-ratio: 1;
+    min-height: 0;
+}
+
+.wedding-cover-frame-art {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 0;
+    width: 125%;
+    height: 125%;
+    object-fit: contain;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+
+.wedding-cover-logo {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: clamp(106px, 33vw, 156px);
+    height: auto;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.wedding-cover-full-name {
+    margin: clamp(0.75rem, 1.8vh, 1.15rem) 0 0;
+    color: #5e4737;
+    font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    font-size: clamp(1.05rem, 4.5vw, 1.35rem);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+}
+
+.wedding-cover-quote {
+    max-width: 17.5rem;
+    margin: clamp(2.3rem, 5vh, 3rem) 0 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(0.74rem, 2.8vw, 0.88rem);
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.wedding-cover-guest {
+    min-height: 0;
+    margin-top: clamp(0.35rem, 1.25vh, 0.7rem);
+    font-size: 0.78rem;
+}
+
+.wedding-cover-guest p {
+    margin: 0.25rem 0 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 0.92rem !important;
+}
+
+.wedding-cover-button {
+    width: min(230px, 78vw);
+    height: clamp(48px, 6vh, 52px);
+    margin-top: clamp(1.75rem, 4.5vh, 2.2rem);
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(94, 71, 55, 0.7);
+    border-radius: 999px;
+    color: #fffaf2;
+    background-color: #765642;
+    box-shadow: 0 0.5rem 1.25rem rgba(80, 55, 39, 0.2);
+    font-family: "Josefin Sans", sans-serif;
+    font-size: clamp(0.9rem, 3.8vw, 1rem);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    transition: background-color 200ms ease, transform 200ms ease;
+}
+
+.wedding-cover-button:hover,
+.wedding-cover-button:focus-visible {
+    color: #fffaf2;
+    background-color: #5e4737;
+    transform: translateY(-2px);
+}
+
+.invitation-hero {
+    height: 100svh;
+    min-height: 100svh;
+    overflow: visible;
+    background-color: #f8eee3;
+}
+
+.invitation-hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: visible;
+    color: #5e4737;
+    background-color: #f8eee3;
+    pointer-events: auto;
+}
+
+.invitation-hero-overlay::before {
+    position: absolute;
+    inset: -6%;
+    z-index: 0;
+    background-image:
+        linear-gradient(180deg, rgba(255, 250, 242, 0.08), rgba(224, 205, 183, 0.12)),
+        url("/assets/images/1001824490.png");
+    background-position: center 40%;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    content: "";
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 58%, rgba(0, 0, 0, 0.92) 76%, transparent 100%);
+    mask-image: radial-gradient(ellipse at center, #000 58%, rgba(0, 0, 0, 0.92) 76%, transparent 100%);
+    pointer-events: none;
+}
+
+.invitation-hero-overlay::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+        linear-gradient(
+            180deg,
+            #f8eee3 0%,
+            rgba(248, 238, 227, 0.78) 7%,
+            rgba(248, 238, 227, 0.12) 21%,
+            rgba(248, 238, 227, 0.08) 72%,
+            rgba(248, 238, 227, 0.76) 91%,
+            #f8eee3 100%
+        ),
+        radial-gradient(
+            ellipse at center,
+            transparent 54%,
+            rgba(248, 238, 227, 0.12) 74%,
+            rgba(248, 238, 227, 0.62) 100%
+        );
+    content: "";
+    pointer-events: none;
+}
+
+.invitation-hero-overlay .wedding-cover-content {
+    position: relative;
+    z-index: 2;
+    width: min(88vw, 25rem);
+    height: 100%;
+    min-height: 0;
+    margin: 0 auto;
+}
+
+#root,
+#root main {
+    background-color: #f8eee3;
+}
+
+#root main {
+    color: #5e4737;
+}
+
+#navbar-menu {
+    min-height: 4.5rem;
+    border-color: rgba(94, 71, 55, 0.22) !important;
+    background-color: rgba(255, 250, 242, 0.92) !important;
+    backdrop-filter: blur(0.75rem);
+}
+
+#navbar-menu .nav-link {
+    min-height: 4.5rem;
+    padding: 0.65rem 0.35rem 0.5rem;
+    color: rgba(94, 71, 55, 0.58);
+    font-size: 0.78rem;
+    line-height: 1.15;
+    transition: color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+#navbar-menu .nav-link i {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 1.2rem;
+}
+
+#navbar-menu .nav-link span {
+    font-size: 0.72rem !important;
+    font-weight: 600;
+}
+
+#navbar-menu .nav-link:hover,
+#navbar-menu .nav-link.active {
+    background-color: rgba(174, 132, 91, 0.12);
+    color: #5e4737;
+}
+
+#navbar-menu .nav-link:active {
+    transform: scale(0.96);
+}
+
+.music-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.65rem;
+    height: 3.65rem;
+    margin-top: 0.8rem;
+    border: 1px solid rgba(255, 250, 242, 0.9);
+    border-radius: 50%;
+    color: #fffaf2;
+    background: linear-gradient(145deg, #9a7658, #694b38);
+    box-shadow: 0 0.75rem 1.5rem rgba(94, 71, 55, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    font-size: 1.4rem;
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.music-control:hover,
+.music-control:focus-visible {
+    color: #fffaf2;
+    background: linear-gradient(145deg, #ad8968, #765642);
+    box-shadow: 0 1rem 1.8rem rgba(94, 71, 55, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.32);
+    transform: translateY(-2px);
+}
+
+.music-control:active {
+    transform: scale(0.94);
+}
+
+.music-control:disabled {
+    cursor: wait;
+    opacity: 0.75;
+}
+
+@media screen and (max-width: 576px) {
+    .wedding-cover {
+        background-position: center 36%;
+    }
+
+    .wedding-cover-content {
+        width: 100%;
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    .invitation-hero-overlay {
+        background-position: center 36%;
+    }
+
+    #navbar-menu .nav-link {
+        padding-right: 0.15rem;
+        padding-left: 0.15rem;
+    }
+}
+
+@media screen and (min-width: 577px) {
+    .wedding-cover-content {
+        width: min(78vw, 30rem);
+    }
+
+    .wedding-cover-name-frame {
+        width: min(48vw, 20rem);
+    }
+
+    .invitation-hero-overlay .wedding-cover-content {
+        width: min(78vw, 30rem);
+    }
+
+    .invitation-hero {
+        height: 100vh;
+        min-height: 100vh;
+    }
+}
+
+@media screen and (max-height: 720px) {
+    .wedding-cover-content {
+        padding-top: 2vh;
+        padding-bottom: 3vh;
+    }
+
+    .wedding-cover-name-frame {
+        width: min(64vw, 16rem);
+    }
+}

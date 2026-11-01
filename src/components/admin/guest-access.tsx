@@ -39,7 +39,6 @@ export default function GuestAccess({ eventId, eventCode, eventUrl }: Props) {
     } finally {
       setBusy(false);
     }
-
   }
 
   async function duplicate() {
@@ -57,42 +56,39 @@ export default function GuestAccess({ eventId, eventCode, eventUrl }: Props) {
     }
   }
 
+  const iconButton = "grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#e3d8cf] text-[#645a53] transition hover:bg-[#faf3eb]";
+  const smallButton = "inline-flex items-center gap-2 rounded-xl border border-[#e3d8cf] px-3.5 py-2.5 text-xs font-semibold text-[#645a53] transition hover:bg-[#faf3eb] disabled:opacity-50";
+
   return (
-    <section className="mt-8 rounded-2xl border border-[#e8dfd8] bg-white p-6 sm:p-8">
-      <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#957c6c]">Guest access</p>
-        <h2 className="mt-2 font-serif text-2xl">Bagikan event ke tamu</h2>
-        <p className="mt-1 text-sm text-[#8f837b]">QR ini membuka URL publik event, bukan halaman admin.</p>
-      </div>
-      <div className="mt-6 grid gap-6 md:grid-cols-[180px_1fr] md:items-start">
-        <div className="rounded-xl border border-[#eee6e0] bg-white p-3">
-          {/* The authenticated route returns a high-resolution image for download or display. */}
-          <img src={`/api/admin/events/${eventId}/qr?format=png`} alt={`QR code untuk ${code}`} className="aspect-square w-full" />
-        </div>
-        <div className="space-y-4">
+    <section className="mt-5 rounded-3xl border border-[#eadfd5] bg-[#fffdfa] p-5 shadow-[0_10px_30px_rgba(100,76,54,0.05)]">
+      <h2 className="font-serif text-xl text-[#302b28]">Bagikan ke tamu</h2>
+      <div className="mt-4 flex gap-4">
+        {/* The authenticated route returns a high-resolution image for download or display. */}
+        <img src={`/api/admin/events/${eventId}/qr?format=png`} alt={`QR code untuk ${code}`} className="h-28 w-28 shrink-0 rounded-2xl border border-[#eee3d9] bg-white p-2 sm:h-32 sm:w-32" />
+        <div className="min-w-0 flex-1 space-y-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#a19389]">Kode event</p>
-            <div className="mt-2 flex items-center gap-2">
-              <code className="rounded-xl bg-[#f7f1ec] px-4 py-3 font-mono text-2xl font-bold tracking-[0.18em]">{code}</code>
-              <button type="button" onClick={() => void copy(code, "Kode")} className="grid h-11 w-11 place-items-center rounded-xl border border-[#ded3cc]" aria-label="Salin kode event"><Copy size={16} /></button>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#a59689]">Kode event</p>
+            <div className="mt-1 flex items-center gap-2">
+              <code className="min-w-0 flex-1 break-words rounded-xl bg-[#f7f1ec] px-3 py-2 font-mono text-sm font-bold tracking-wider text-[#302b28]">{code}</code>
+              <button type="button" onClick={() => void copy(code, "Kode")} className={iconButton} aria-label="Salin kode event"><Copy size={15} /></button>
             </div>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#a19389]">URL tamu</p>
-            <div className="mt-2 flex items-center gap-2">
-              <input readOnly value={eventUrl} className="min-w-0 flex-1 rounded-xl border border-[#ded3cc] px-3 py-3 text-sm text-[#756d67]" />
-              <button type="button" onClick={() => void copy(eventUrl, "URL")} className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#ded3cc]" aria-label="Salin URL event"><Copy size={16} /></button>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#a59689]">Link tamu</p>
+            <div className="mt-1 flex items-center gap-2">
+              <input readOnly value={eventUrl} className="min-w-0 flex-1 rounded-xl border border-[#e3d8cf] bg-white px-3 py-2.5 text-xs text-[#756d67]" />
+              <button type="button" onClick={() => void copy(eventUrl, "Link")} className={iconButton} aria-label="Salin link event"><Copy size={15} /></button>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <a href={`/api/admin/events/${eventId}/qr?format=png&download=1`} download className="inline-flex items-center gap-2 rounded-xl bg-[#2b2927] px-4 py-3 text-sm font-semibold text-white"><Download size={16} /> PNG</a>
-            <a href={`/api/admin/events/${eventId}/qr?format=svg&download=1`} download className="inline-flex items-center gap-2 rounded-xl border border-[#ded3cc] px-4 py-3 text-sm font-semibold"><Download size={16} /> SVG</a>
-            <button type="button" onClick={() => void regenerate()} disabled={busy} className="inline-flex items-center gap-2 rounded-xl border border-[#ded3cc] px-4 py-3 text-sm font-semibold disabled:opacity-50"><RefreshCw size={16} /> {busy ? "Mengganti..." : "Regenerasi kode"}</button>
-            <button type="button" onClick={() => void duplicate()} disabled={busy} className="inline-flex items-center gap-2 rounded-xl border border-[#ded3cc] px-4 py-3 text-sm font-semibold disabled:opacity-50"><Files size={16} /> Duplikat event</button>
-          </div>
-          {status && <p role="status" className="text-sm text-[#756d67]">{status}</p>}
         </div>
       </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <a href={`/api/admin/events/${eventId}/qr?format=png&download=1`} download className="inline-flex items-center gap-2 rounded-xl bg-[#302b28] px-3.5 py-2.5 text-xs font-semibold text-white"><Download size={14} /> PNG</a>
+        <a href={`/api/admin/events/${eventId}/qr?format=svg&download=1`} download className={smallButton}><Download size={14} /> SVG</a>
+        <button type="button" onClick={() => void regenerate()} disabled={busy} className={smallButton}><RefreshCw size={14} /> {busy ? "Mengganti..." : "Kode baru"}</button>
+        <button type="button" onClick={() => void duplicate()} disabled={busy} className={smallButton}><Files size={14} /> Duplikat</button>
+      </div>
+      {status && <p role="status" className="mt-3 text-sm text-[#756d67]">{status}</p>}
     </section>
   );
 }

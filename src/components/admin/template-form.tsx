@@ -2,28 +2,96 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronDown } from "lucide-react";
 import { DEFAULT_TEMPLATE } from "@/lib/image/template-config";
 
-const starterConfig = JSON.stringify({
-  photoSlots: DEFAULT_TEMPLATE.photoSlots,
-  texts: DEFAULT_TEMPLATE.texts,
-}, null, 2);
+type TemplateRecord = {
+  id?: string;
+  name?: string | null;
+  width?: number | null;
+  height?: number | null;
+  background?: string | null;
+  overlay?: string | null;
+  logo?: string | null;
+  textConfig?: unknown;
+};
 
-export default function TemplateForm() {
+const inputClass = "mt-1.5 w-full rounded-xl border border-[#e3d8cf] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#b99261]";
+const labelClass = "block text-[13px] font-medium text-[#5f554e]";
+const hintClass = "block text-[11px] font-normal text-[#a59689]";
+
+export default function TemplateForm({ template }: { template?: TemplateRecord | null }) {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [advanced, setAdvanced] = useState(false);
+  const config = template?.textConfig && typeof template.textConfig === "object" ? template.textConfig : { photoSlots: DEFAULT_TEMPLATE.photoSlots, texts: DEFAULT_TEMPLATE.texts };
+  const defaultConfig = JSON.stringify(config, null, 2);
+  const isEditing = Boolean(template?.id);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formEl = event.currentTarget;
+    const form = new FormData(formEl);
+    setSaved(false);
     try {
-      JSON.parse(String(form.get("textConfig")));
+      JSON.parse(String(form.get("textConfig") ?? ""));
     } catch {
-      setError("Konfigurasi JSON tidak valid.");
+      setAdvanced(true);
+      setError("Konfigurasi JSON tidak valid. Perbaiki di bagian Lanjutan.");
       return;
     }
-    const response = await fetch("/api/admin/templates", { method: "POST", body: form });
-    if (response.ok) router.refresh();
-    else setError("Template gagal disimpan.");
+
+    setSaving(true);
+    const method = isEditing ? "PUT" : "POST";
+    if (isEditing) form.set("id", template!.id!);
+    const response = await fetch("/api/admin/templates", { method, body: form });
+    setSaving(false);
+    if (response.ok) {
+      setError("");
+      setSaved(true);
+      if (!isEditing) formEl.reset();
+      router.refresh();
+      return;
+    }
+    const payload = await response.json().catch(() => ({}));
+    setError(payload.error || "Template gagal disimpan.");
   }
-  return <form onSubmit={submit} className="mt-6 space-y-5"><div className="grid gap-4 sm:grid-cols-3"><label className="text-sm font-semibold text-[#4b4039]">Nama template<input required name="name" className="mt-2 w-full rounded-xl border border-[#ded3cc] bg-[#fffdfa] px-3 py-3 outline-none transition focus:border-[#c99a62] focus:ring-2 focus:ring-[#c99a62]/15" placeholder="Warm Editorial" /></label><label className="text-sm font-semibold text-[#4b4039]">Lebar kanvas<input required name="width" type="number" defaultValue="1080" className="mt-2 w-full rounded-xl border border-[#ded3cc] bg-[#fffdfa] px-3 py-3 outline-none transition focus:border-[#c99a62] focus:ring-2 focus:ring-[#c99a62]/15" /></label><label className="text-sm font-semibold text-[#4b4039]">Tinggi kanvas<input required name="height" type="number" defaultValue="1350" className="mt-2 w-full rounded-xl border border-[#ded3cc] bg-[#fffdfa] px-3 py-3 outline-none transition focus:border-[#c99a62] focus:ring-2 focus:ring-[#c99a62]/15" /></label></div><div className="grid gap-4 rounded-2xl border border-[#f0e5dc] bg-[#fcf8f4] p-4 sm:grid-cols-3"><label className="text-sm font-semibold text-[#4b4039]">Background<span className="mt-1 block text-[11px] font-normal text-[#a08f84]">Kanvas final</span><input name="background" type="url" className="mt-2 w-full rounded-xl border border-[#ded3cc] bg-white px-3 py-3 outline-none focus:border-[#c99a62]" placeholder="https://..." /></label><label className="text-sm font-semibold text-[#4b4039]">Overlay dekorasi<span className="mt-1 block text-[11px] font-normal text-[#a08f84]">Border / ornamen</span><input name="overlay" type="url" className="mt-2 w-full rounded-xl border border-[#ded3cc] bg-white px-3 py-3 outline-none focus:border-[#c99a62]" placeholder="https://..." /></label><label className="text-sm font-semibold text-[#4b4039]">Logo<span className="mt-1 block text-[11px] font-normal text-[#a08f84]">Opsional</span><input name="logo" type="url" className="mt-2 w-full rounded-xl border border-[#ded3cc] bg-white px-3 py-3 outline-none focus:border-[#c99a62]" placeholder="https://..." /></label></div><label className="block text-sm font-semibold text-[#4b4039]">Photo slots &amp; teks<span className="mt-1 block text-[11px] font-normal text-[#a08f84]">Gunakan `photoSlots` untuk satu atau beberapa area foto, lalu atur teks dinamis dengan `{"{{eventName}}"}`.</span><textarea required name="textConfig" defaultValue={starterConfig} rows={12} className="mt-2 w-full rounded-xl border border-[#ded3cc] bg-[#fffdfa] px-3 py-3 font-mono text-xs leading-5 outline-none focus:border-[#c99a62] focus:ring-2 focus:ring-[#c99a62]/15" /></label>{error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}<button className="rounded-xl bg-[#2b2927] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#493a31]">Simpan template</button></form>;
+
+  return (
+    <form onSubmit={submit} className="mt-5 space-y-5">
+      <div className="grid grid-cols-2 gap-3">
+        <label className={`${labelClass} col-span-2`}>Nama template<input required name="name" defaultValue={template?.name ?? ""} className={inputClass} placeholder="Warm Editorial" /></label>
+        <label className={labelClass}>Lebar (px)<input required name="width" type="number" inputMode="numeric" defaultValue={String(template?.width ?? 1080)} className={inputClass} /></label>
+        <label className={labelClass}>Tinggi (px)<input required name="height" type="number" inputMode="numeric" defaultValue={String(template?.height ?? 1350)} className={inputClass} /></label>
+      </div>
+
+      <div className="space-y-3 rounded-2xl border border-[#f0e5dc] bg-[#fcf8f4] p-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a77943]">Gambar (URL)</p>
+        <label className={labelClass}>Background<span className={hintClass}>Kanvas final</span><input name="background" type="url" defaultValue={template?.background ?? ""} className={inputClass} placeholder="https://..." /></label>
+        <label className={labelClass}>Overlay dekorasi<span className={hintClass}>Border / ornamen</span><input name="overlay" type="url" defaultValue={template?.overlay ?? ""} className={inputClass} placeholder="https://..." /></label>
+        <label className={labelClass}>Logo<span className={hintClass}>Opsional</span><input name="logo" type="url" defaultValue={template?.logo ?? ""} className={inputClass} placeholder="https://..." /></label>
+      </div>
+
+      <details open={advanced} onToggle={(event) => setAdvanced(event.currentTarget.open)} className="group rounded-2xl border border-[#eee3d9] bg-[#fffdfa]">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 [&::-webkit-details-marker]:hidden">
+          <span>
+            <span className="block text-sm font-semibold text-[#302b28]">Lanjutan: slot foto &amp; teks</span>
+            <span className="block text-xs text-[#9a8d83]">Konfigurasi JSON, sudah terisi nilai bawaan.</span>
+          </span>
+          <ChevronDown size={16} className="shrink-0 text-[#a59689] transition group-open:rotate-180" />
+        </summary>
+        <div className="border-t border-[#f0e7de] px-4 py-4">
+          <label className={labelClass}>Photo slots &amp; teks<span className={hintClass}>Pakai <code>photoSlots</code> untuk area foto, dan <code>{"{{eventName}}"}</code> untuk teks dinamis.</span>
+            <textarea name="textConfig" defaultValue={defaultConfig} rows={12} className="mt-1.5 w-full rounded-xl border border-[#e3d8cf] bg-white px-3 py-3 font-mono text-xs leading-5 outline-none focus:border-[#b99261]" />
+          </label>
+        </div>
+      </details>
+
+      {error && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+      {saved && !error && <p className="rounded-xl bg-[#eaf5ed] px-4 py-3 text-sm text-[#4c8a5a]">Template berhasil disimpan.</p>}
+      <button disabled={saving} className="w-full rounded-xl bg-[#302b28] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#4a423d] disabled:opacity-60">{saving ? "Menyimpan..." : isEditing ? "Simpan perubahan" : "Simpan template"}</button>
+    </form>
+  );
 }
